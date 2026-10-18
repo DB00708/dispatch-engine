@@ -15,34 +15,85 @@ free and open source only, no API keys.
 
 ## Quick start
 
-**1. Install and start [Docker Desktop](https://docs.docker.com/get-docker/)**: the only
-thing you need. No Python, Node or database to install.
+The only thing you need is **Docker Desktop** (free). No Python, Node or database to install.
+The first start downloads about 600 MB and takes a few minutes; later starts take seconds.
 
-**2. Get the code:**
+### Windows
 
-```bash
-git clone https://github.com/DB00708/dispatch-engine.git
-cd dispatch-engine
-```
+1. **Install Docker Desktop** from
+   [docs.docker.com/desktop/setup/install/windows-install](https://docs.docker.com/desktop/setup/install/windows-install/).
+   Open it and wait until it shows **Engine running**.
+2. **Get the code.** Open **PowerShell** and run:
 
-**3. Run one command:**
+   ```powershell
+   git clone https://github.com/DB00708/dispatch-engine.git
+   cd dispatch-engine
+   ```
 
-| | Windows (PowerShell or cmd) | macOS / Linux |
+   No Git? On the GitHub page click **Code → Download ZIP**, unzip it, then open PowerShell in
+   that folder (in File Explorer, right-click inside the folder → *Open in Terminal*; on
+   Windows 10: Shift + right-click → *Open PowerShell window here*).
+3. **Start the app:**
+
+   ```powershell
+   .\run.cmd
+   ```
+
+   When it is ready, your browser opens **http://localhost:8080**. You can also just
+   double-click `run.cmd` in File Explorer.
+4. **Stop it** when you are done:
+
+   ```powershell
+   .\run.cmd stop
+   ```
+
+To run every test and check: `.\run.cmd check`.
+
+### Mac
+
+1. **Install Docker Desktop for Mac** (Apple chip or Intel) from
+   [docs.docker.com/desktop/setup/install/mac-install](https://docs.docker.com/desktop/setup/install/mac-install/).
+   Open it from Applications and wait until it shows **Engine running** (the whale icon
+   appears in the menu bar).
+2. **Get the code.** Open **Terminal** and run:
+
+   ```bash
+   git clone https://github.com/DB00708/dispatch-engine.git
+   cd dispatch-engine
+   ```
+
+   The first time you use `git`, macOS may offer to install the command line developer tools:
+   click **Install**, then run the commands again. No Git? Use **Code → Download ZIP** on the
+   GitHub page, unzip it, and `cd` into the folder.
+3. **Start the app:**
+
+   ```bash
+   ./run.sh
+   ```
+
+   When it is ready, your browser opens **http://localhost:8080**.
+4. **Stop it** when you are done:
+
+   ```bash
+   ./run.sh stop
+   ```
+
+To run every test and check: `./run.sh check`.
+
+**Linux:** the same as Mac, with Docker Engine and the Compose plugin instead of Docker Desktop.
+
+### All commands
+
+| | Windows | Mac / Linux |
 | --- | --- | --- |
 | Start the app | `.\run.cmd` | `./run.sh` |
 | Run every check | `.\run.cmd check` | `./run.sh check` |
 | Stop | `.\run.cmd stop` | `./run.sh stop` |
 | Follow the logs | `.\run.cmd logs` | `./run.sh logs` |
 
-Start builds everything, waits until the app is healthy, then opens
-http://localhost:8080 in your browser. The API docs are at http://localhost:8080/docs.
-
-- **Port 8080 taken?** It picks the next free port (8081, 8082, ...) and prints it.
-- **Postgres + Redis:** add `--db` to start or check, for example `./run.sh --db`.
-- **Windows:** you can also double-click `run.cmd`.
-
-The first start downloads about 600 MB of images and takes a few minutes. Later starts take
-seconds.
+- **API docs:** http://localhost:8080/docs
+- **Port 8080 taken?** It picks the next free port (8081, 8082, ...) and prints the address.
+- **Postgres + Redis:** add `--db`, for example `.\run.cmd --db` or `./run.sh --db`.
 
 **Without Docker** (Python 3.11+ and Node 22.12+), in two terminals:
 
@@ -57,7 +108,7 @@ cd ui && npm install && npm run dev                                           # 
 | --- | --- |
 | "Docker is installed but not running" | Start Docker Desktop, wait until it says "Engine running", run the command again |
 | "Docker is not installed" | Install Docker Desktop from the link above |
-| `./run.sh: Permission denied` (macOS/Linux) | Run `bash run.sh` instead |
+| "permission denied: ./run.sh" (Mac/Linux) | Run `bash run.sh` instead (happens after a ZIP download) |
 | "running scripts is disabled on this system" (Windows) | Use `.\run.cmd`, which handles this for you |
 | The page is blank or an old version | `./run.sh stop`, then `./run.sh` again (`.\run.cmd` on Windows) |
 | Something else | `./run.sh logs` (or `.\run.cmd logs`) shows what each container is doing |
