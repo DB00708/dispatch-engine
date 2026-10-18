@@ -1,0 +1,109 @@
+# Run from the repository root.
+#
+#   docker compose up --build -d                        UI http://localhost:8080, API http://localhost:8000
+#   docker compose --env-file .env.db up --build -d     same, with Postgres (saved scenarios) + Redis (cache)
+#   ./scripts/check-all.sh                              every check, in Docker, with a pass/fail summary
+#
+# Ports are configurable: API_PORT=8001 WEB_PORT=8081 docker compose up --build -d
+name: dispatch-engine
+
+services:
+  api:
+    build:
+      context: ./api
+      target: runtime
+    image: dispatch-engine-api:local
+    ports:
+      - "${API_PORT:-8000}:8000"
+    environment:
+      STORAGE: ${STORAGE:-memory}
+      CACHE: ${CACHE:-none}
+      DATABASE_URL: postgresql+psycopg://dispatch:dispatch@db:5432/dispatch
+      REDIS_URL: redis://redis:6379/0
+      CORS_ORIGINS: http://localhost:5173,http://127.0.0.1:5173,http://localhost:8080
+    restart: unless-stopped
+
+  web:
+    build: ./ui
+    image: dispatch-engine-ui:local
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    environment:
+      API_UPSTREAM: http://api:8000
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: postgres:17
+    profiles: ["db"]
+    environment:
+      POSTGRES_USER: dispatch
+      POSTGRES_PASSWORD: dispatch
+      POSTGRES_DB: dispatch
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256 --auth-local=scram-sha-256
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dispatch -d dispatch"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    profiles: ["db"]
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # API checks with no local Python: ruff, mypy and pytest (default command).
+  # Against the running stack: docker compose run --rm api-tests pytest -m e2e
+  api-tests:
+    build:
+      context: ./api
+      target: test
+    image: dispatch-engine-api:test
+    profiles: ["tools"]
+    environment:
+      E2E_BASE_URL: http://api:8000
+
+  # Node 22 toolbox: npm commands for ui/ with no local Node install.
+  tools:
+    image: node:22-bookworm-slim
+    profiles: ["tools"]
+    working_dir: /repo/ui
+    entrypoint: ["npm"]
+    environment:
+      NPM_CONFIG_UPDATE_NOTIFIER: "false"
+      NPM_CONFIG_FUND: "false"
+      NPM_CONFIG_AUDIT: "false"
+    volumes:
+      - .:/repo
+      - ui_node_modules:/repo/ui/node_modules
+
+  # Playwright with its browsers preinstalled; same version as ui/package.json.
+  e2e:
+    image: mcr.microsoft.com/playwright:v1.64.1-noble
+    profiles: ["tools"]
+    working_dir: /repo/ui
+    entrypoint: ["npx", "playwright", "test"]
+    command: ["--project", "chromium"]
+    ipc: host
+    environment:
+      E2E_BASE_URL: http://web
+      CI: "1"
+    volumes:
+      - .:/repo
+      - ui_node_modules:/repo/ui/node_modules
+    depends_on:
+      web:
+        condition: service_healthy
+
+volumes:
+  pgdata:
+  ui_node_modules:

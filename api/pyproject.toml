@@ -1,0 +1,28 @@
+[project]
+name = "dispatch-engine-api"
+version = "1.0.0"
+description = "Field-service dispatcher: assigns engineers to fault tickets with three algorithms."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = ["-m", "not e2e"]
+markers = ["e2e: calls a running API at E2E_BASE_URL (run with: pytest -m e2e)"]
+filterwarnings = ["error"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "C4", "PT"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["app", "tests", "scripts"]
+
+[[tool.mypy.overrides]]
+module = ["scipy.*"]
+ignore_missing_imports = true

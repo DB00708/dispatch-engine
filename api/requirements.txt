@@ -1,0 +1,11 @@
+fastapi==0.143.3
+starlette==1.8.0
+uvicorn==0.54.0
+pydantic==2.14.1
+pydantic-settings==2.16.0
+numpy==2.4.6
+scipy==1.17.1
+# Optional infrastructure (only used with STORAGE=postgres / CACHE=redis)
+SQLAlchemy==2.1.5
+psycopg[binary]==3.3.6
+redis==8.1.0
