@@ -26,7 +26,16 @@ server {
         proxy_read_timeout 120s;
     }
 
+    # FastAPI's schema and interactive docs, so the whole app needs one port.
     location = /openapi.json {
+        proxy_pass ${API_UPSTREAM};
+    }
+
+    location = /docs {
+        proxy_pass ${API_UPSTREAM};
+    }
+
+    location = /redoc {
         proxy_pass ${API_UPSTREAM};
     }
 

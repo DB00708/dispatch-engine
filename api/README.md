@@ -27,14 +27,11 @@ uvicorn app.main:app --reload
 
 Open http://localhost:8000/docs for the interactive API.
 
-**Docker**, from the repository root (starts the UI too):
-
-```bash
-docker compose up --build -d                       # API on :8000, UI on :8080, in-memory
-docker compose --env-file .env.db up --build -d    # + Postgres (saved scenarios) and Redis (result cache)
-```
-
-If port 8000 is taken, set `API_PORT` (for example `API_PORT=8001`).
+**Docker**, from the repository root: `./run.sh` (macOS/Linux) or `.\run.cmd` (Windows) starts
+the API together with the UI; add `--db` for Postgres (saved scenarios) and Redis (result
+cache). In Docker everything is served on one port through nginx: the API under
+http://localhost:8080/api and its docs at http://localhost:8080/docs. Use that host instead of
+`localhost:8000` in the examples below.
 
 ## API
 

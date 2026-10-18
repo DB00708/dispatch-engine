@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 # Run every check in Docker and print a pass/fail summary. Needs only Docker.
+# Usually called through ./run.sh check (or run.cmd check on Windows).
 #
 #   ./scripts/check-all.sh           in-memory storage, no cache
 #   ./scripts/check-all.sh --db      the same against Postgres + Redis
 #   ./scripts/check-all.sh --keep    leave the stack running afterwards
 #
-# Host ports default to 8000 (API) and 8080 (UI); override with API_PORT / WEB_PORT.
+# The app is published on WEB_PORT (default 8080); the API is reached through it.
 set -uo pipefail
 cd "$(dirname "$0")/.."
+
+if ! docker info >/dev/null 2>&1; then
+  echo "Docker is not running (or not installed). Start Docker Desktop, then try again." >&2
+  exit 1
+fi
 
 compose=(docker compose)
 mode="in-memory storage, no cache"

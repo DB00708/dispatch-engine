@@ -15,31 +15,58 @@ free and open source only, no API keys.
 
 ## Quick start
 
-**With Docker** (nothing else needed):
+**1. Install and start [Docker Desktop](https://docs.docker.com/get-docker/)**: the only
+thing you need. No Python, Node or database to install.
+
+**2. Get the code:**
 
 ```bash
-docker compose up --build -d      # then open http://localhost:8080
+git clone https://github.com/DB00708/dispatch-engine.git
+cd dispatch-engine
 ```
+
+**3. Run one command:**
+
+| | Windows (PowerShell or cmd) | macOS / Linux |
+| --- | --- | --- |
+| Start the app | `.\run.cmd` | `./run.sh` |
+| Run every check | `.\run.cmd check` | `./run.sh check` |
+| Stop | `.\run.cmd stop` | `./run.sh stop` |
+| Follow the logs | `.\run.cmd logs` | `./run.sh logs` |
+
+Start builds everything, waits until the app is healthy, then opens
+http://localhost:8080 in your browser. The API docs are at http://localhost:8080/docs.
+
+- **Port 8080 taken?** It picks the next free port (8081, 8082, ...) and prints it.
+- **Postgres + Redis:** add `--db` to start or check, for example `./run.sh --db`.
+- **Windows:** you can also double-click `run.cmd`.
+
+The first start downloads about 600 MB of images and takes a few minutes. Later starts take
+seconds.
 
 **Without Docker** (Python 3.11+ and Node 22.12+), in two terminals:
 
 ```bash
 cd api && pip install -r requirements.txt && uvicorn app.main:app --reload    # API on :8000
-cd ui && npm install && npm run dev                                           # UI on :5173
+cd ui && npm install && npm run dev                                           # UI on http://localhost:5173
 ```
 
-Optional Postgres (saved scenarios) and Redis (result cache):
-`docker compose --env-file .env.db up --build -d`. Ports can be changed with `API_PORT` and
-`WEB_PORT`.
+### Troubleshooting
+
+| You see | Do this |
+| --- | --- |
+| "Docker is installed but not running" | Start Docker Desktop, wait until it says "Engine running", run the command again |
+| "Docker is not installed" | Install Docker Desktop from the link above |
+| `./run.sh: Permission denied` (macOS/Linux) | Run `bash run.sh` instead |
+| "running scripts is disabled on this system" (Windows) | Use `.\run.cmd`, which handles this for you |
+| The page is blank or an old version | `./run.sh stop`, then `./run.sh` again (`.\run.cmd` on Windows) |
+| Something else | `./run.sh logs` (or `.\run.cmd logs`) shows what each container is doing |
 
 ## Check everything
 
-```bash
-./scripts/check-all.sh          # in-memory mode
-./scripts/check-all.sh --db     # against Postgres + Redis
-```
-
-It runs every check in Docker and finishes with a pass/fail line per check:
+`./run.sh check` (`.\run.cmd check` on Windows) runs every check in Docker and finishes with
+a pass/fail line per check. Add `--db` to run them against Postgres + Redis. The first run
+also downloads the Playwright browser image (about 3.6 GB on disk).
 
 | Check | What runs |
 | --- | --- |
@@ -91,7 +118,7 @@ Full write-up: [docs/algorithm-comparison.md](docs/algorithm-comparison.md).
 | At least two strategies | Greedy, Hungarian, Regret in [api/app/engine/allocators/](api/app/engine/allocators) |
 | Hard and soft constraints | [constraints.py](api/app/engine/constraints.py), [cost.py](api/app/engine/cost.py) |
 | Decision explanations, metrics | [explain.py](api/app/engine/explain.py), [metrics.py](api/app/engine/metrics.py) |
-| Tests with comparisons | [api/tests/](api/tests), [ui/e2e/](ui/e2e), `./scripts/check-all.sh` |
+| Tests with comparisons | [api/tests/](api/tests), [ui/e2e/](ui/e2e), `./run.sh check` |
 | Map, side-by-side comparison, metrics UI | Compare tab ([ui/src/components/](ui/src/components)) |
 | Interactive features | Sliders, add engineer or delete ticket on the map, How it works replay, sweep |
 | README and analysis | This file, [docs/algorithm-comparison.md](docs/algorithm-comparison.md) |
@@ -103,7 +130,8 @@ Full write-up: [docs/algorithm-comparison.md](docs/algorithm-comparison.md).
 api/        FastAPI service: engine, allocators, tests (see api/README.md)
 ui/         React app: Compare, How it works, Experiment (see ui/README.md)
 docs/       algorithm write-up, sweep results, screenshots
-scripts/    check-all.sh
+run.sh, run.cmd      one command to start, check or stop (macOS/Linux, Windows)
+scripts/    check-all.sh (the checks), run.ps1 (Windows logic behind run.cmd)
 docker-compose.yml   stack + test runners (api-tests, tools, e2e)
 ```
 

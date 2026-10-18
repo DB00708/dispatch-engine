@@ -27,16 +27,12 @@ npm install
 npm run dev            # http://localhost:5173, proxies /api to VITE_API_PROXY (default :8000)
 ```
 
-**Everything in Docker (no local Node needed),** from the repository root:
+**Everything in Docker (no local Node needed),** from the repository root: `./run.sh`
+(macOS/Linux) or `.\run.cmd` (Windows). It opens http://localhost:8080, or the next free port
+if 8080 is taken. Add `--db` for Postgres + Redis.
 
-```bash
-docker compose up --build -d                       # UI http://localhost:8080, API :8000
-docker compose --env-file .env.db up --build -d    # same, with Postgres + Redis
-```
-
-nginx serves the built app and proxies `/api` to the API container, so the browser only
-talks to one origin. If a port is taken, set `API_PORT` or `WEB_PORT` (for example
-`WEB_PORT=8081`).
+nginx serves the built app and proxies `/api` and `/docs` to the API container, so the
+browser only talks to one origin and only one port is published.
 
 ## Scripts
 

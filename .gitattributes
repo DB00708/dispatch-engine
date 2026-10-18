@@ -1,4 +1,6 @@
 # Keep LF everywhere: these files run in Linux containers.
 * text=auto eol=lf
+# Windows launchers need CRLF.
+*.cmd text eol=crlf
 *.png binary
 *.ico binary

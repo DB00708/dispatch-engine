@@ -1,10 +1,9 @@
-# Run from the repository root.
+# Easiest: ./run.sh (macOS/Linux) or .\run.cmd (Windows). Plain Compose works too:
 #
-#   docker compose up --build -d                        UI http://localhost:8080, API http://localhost:8000
+#   docker compose up --build -d                        app on http://localhost:8080 (API under /api, docs at /docs)
 #   docker compose --env-file .env.db up --build -d     same, with Postgres (saved scenarios) + Redis (cache)
-#   ./scripts/check-all.sh                              every check, in Docker, with a pass/fail summary
 #
-# Ports are configurable: API_PORT=8001 WEB_PORT=8081 docker compose up --build -d
+# Only nginx publishes a port (WEB_PORT, default 8080); the API is reached through it.
 name: dispatch-engine
 
 services:
@@ -13,8 +12,6 @@ services:
       context: ./api
       target: runtime
     image: dispatch-engine-api:local
-    ports:
-      - "${API_PORT:-8000}:8000"
     environment:
       STORAGE: ${STORAGE:-memory}
       CACHE: ${CACHE:-none}
